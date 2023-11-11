@@ -9,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -49,14 +50,16 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private final Set<Comment> comment = new LinkedHashSet<>();
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @CreatedDate
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false) // updatable : 수정 불가하도록 함.
     private LocalDateTime creDate;  // 생성일자
 
     @CreatedBy
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, updatable = false, length = 100)
     private String creUser;         // 생성자
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime modDate;  // 수정일자
