@@ -21,7 +21,6 @@ public class PostControllerTest {
         this.mvc = mvc;
     }
 
-    @Disabled("구현 중")
     @DisplayName("[view][GET] 게시글 리스트 페이지 - 정상 호출")
     @Test
     void show_postListPage() throws Exception {
@@ -30,7 +29,7 @@ public class PostControllerTest {
         // When & Then
         mvc.perform(get("/posts"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.TEXT_HTML))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("posts/index"))
                 .andExpect(model().attributeExists("posts"));
     }
@@ -44,7 +43,7 @@ public class PostControllerTest {
         // When & Then
         mvc.perform(get("/posts/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.TEXT_HTML))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("posts/detail"))
                 .andExpect(model().attributeExists("post"))
                 .andExpect(model().attributeExists("comments"));
@@ -59,7 +58,7 @@ public class PostControllerTest {
         // When & Then
         mvc.perform(get("/posts/search-hashtag"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.TEXT_HTML))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("posts/search-hashtag"));
     }
 }

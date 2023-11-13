@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>mh-log</title>
+</head>
+<body>
+    <header th:replace="common/header :: header"></header>
+
+    <main>
+        <form>
+            <label for="search-type" hidden>유형</label>
+            <select id="search-type" name="search-type">
+                <option>제목</option>
+                <option>본문</option>
+                <option>ID</option>
+                <option>닉네임</option>
+                <option>해시태그</option>
+            </select>
+            <label for="search-value" hidden>검색어</label>
+            <input id="search-value" type="search" placeholder="검색어를 입력해주세요." name="search-value">
+            <button type="submit">검색</button>
+
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>no</th>
+                    <th>제목</th>
+                    <th>해시태그</th>
+                    <th>작성자</th>
+                    <th>작성일</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                   <td>1</td>
+                   <td>제목입니다</td>
+                   <td>#test</td>
+                   <td>user1</td>
+                   <td>2023-11-13</td>
+                </tr>
+                <tr>
+                   <td>2</td>
+                   <td>제목입니다2</td>
+                   <td>#test2</td>
+                   <td>user2</td>
+                   <td>2023-11-12</td>
+                </tr>
+                <tr>
+                   <td>3</td>
+                   <td>제목입니다3</td>
+                   <td>#test3</td>
+                   <td>user3</td>
+                   <td>2023-11-11</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <nav>
+            <table>
+                <tr>
+                    <td><<</td>
+                    <td><</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>></td>
+                    <td>>></td>
+                </tr>
+            </table>
+        </nav>
+    </main>
+
+    <footer th:replace="common/footer :: footer"></footer>
+</body>
+</html>
