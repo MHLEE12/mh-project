@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<thlogic>
+    <attr sel="#header" th:replace="common/header :: header" />
+    <attr sel="#footer" th:replace="common/footer :: footer" />
+</thlogic>
