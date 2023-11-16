@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
-@ToString
+@ToString(callSuper = true)
 @Table(indexes = { // 빠른 서치가 가능하도록 인덱스를 걺
         @Index(columnList = "content"),
         @Index(columnList = "creDate"),
@@ -33,6 +33,10 @@ public class Comment {
     @Setter
     @ManyToOne(optional = false)
     private Post post;              // 게시글id
+
+    @Setter
+    @ManyToOne(optional = false)
+    private UserAccount userAccount;
 
     @Setter
     @Column(nullable = false, length = 500)
@@ -59,13 +63,14 @@ public class Comment {
 
     protected Comment() {}
 
-    private Comment(Post post, String content) {
+    private Comment(Post post, UserAccount userAccount, String content) {
         this.post = post;
+        this.userAccount = userAccount;
         this.content = content;
     }
 
-    public static Comment of(Post post, String content) {
-        return new Comment(post, content);
+    public static Comment of(Post post, UserAccount userAccount, String content) {
+        return new Comment(post, userAccount, content);
     }
 
     @Override

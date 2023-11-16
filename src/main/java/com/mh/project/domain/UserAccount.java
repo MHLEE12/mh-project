@@ -12,46 +12,42 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 @ToString(callSuper = true)
-@Table(indexes = { // 빠른 서치가 가능하도록 인덱스를 걺
-        @Index(columnList = "title"),
-        @Index(columnList = "hashtag"),
+@Table(indexes = {
+        @Index(columnList = "userId"),
+        @Index(columnList = "email", unique = true),
         @Index(columnList = "creDate"),
         @Index(columnList = "creUser")
 })
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-public class Post {
-    // postId, creUser, modUser등을 마음대로 바꾸지 못하게 전체 setter를 걸지 않고 일부만 setter를 걺
+public class UserAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;            // 게시글id
+    private Long id;
 
     @Setter
-    @ManyToOne(optional = false)
-    private UserAccount userAccount;
+    @Column(nullable = false, length = 50)
+    private String userId;
 
     @Setter
     @Column(nullable = false)
-    private String title;           // 제목
+    private String userPassword;
 
     @Setter
-    @Column(nullable = false, length = 10000)
-    private String content;         // 내용
+    @Column(length = 100)
+    private String email;
 
     @Setter
-    private String hashtag;         // 해시태그
+    @Column(length = 100)
+    private String nickname;
 
-    @ToString.Exclude
-    @OrderBy("creDate DESC")
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private final Set<Comment> comment = new LinkedHashSet<>();
+    @Setter
+    private String memo;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @CreatedDate
@@ -71,24 +67,25 @@ public class Post {
     @Column(nullable = false, length = 100)
     private String modUser;         // 수정자
 
-    protected Post() {}
+    protected UserAccount() {}
 
-    public Post(UserAccount userAccount, String title, String content, String hashtag) {
-        this.userAccount = userAccount;
-        this.title = title;
-        this.content = content;
-        this.hashtag = hashtag;
+    private UserAccount(String userId, String userPassword, String email, String nickname, String memo) {
+        this.userId = userId;
+        this.userPassword = userPassword;
+        this.email = email;
+        this.nickname = nickname;
+        this.memo = memo;
     }
 
-    public static Post of(UserAccount userAccount, String title, String content, String hashtag) {
-        return new Post(userAccount, title, content, hashtag);
+    public static UserAccount of(String userId, String userPassword, String email, String nickname, String memo) {
+        return new UserAccount(userId, userPassword, email, nickname, memo);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Post post)) return false;
-        return id != null && id.equals(post.id);
+        if (!(o instanceof UserAccount userAccount)) return false;
+        return id != null && id.equals(userAccount.id);
     }
 
     @Override

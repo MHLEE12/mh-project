@@ -2,6 +2,7 @@ package com.mh.project.repository;
 
 import com.mh.project.config.JpaConfig;
 import com.mh.project.domain.Post;
+import com.mh.project.domain.UserAccount;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,13 +22,16 @@ class JpaRepositoryTest {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final UserAccountRepository userAccountRepository;
 
 
     JpaRepositoryTest(
             @Autowired PostRepository postRepository,
-            @Autowired CommentRepository commentRepository) {
+            @Autowired CommentRepository commentRepository,
+            @Autowired UserAccountRepository userAccountRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
+        this.userAccountRepository = userAccountRepository;
     }
 
     @DisplayName("jpa select test")
@@ -41,7 +45,7 @@ class JpaRepositoryTest {
         // Then
         assertThat(posts)
                 .isNotNull()
-                .hasSize(100);
+                .hasSize(30);
     }
 
     @DisplayName("jpa insert test")
@@ -49,10 +53,11 @@ class JpaRepositoryTest {
     void insertTest() {
         // Given
         long prePostCount = postRepository.count();
-        Post newPost = Post.of("title", "content", "#spring");
+        UserAccount userAccount = userAccountRepository.save(UserAccount.of("mh", "pw", null, null, null));
+        Post post = Post.of(userAccount, "title", "content", "#spring");
 
         // When
-        Post savedPost = postRepository.save(newPost);
+        postRepository.save(post);
 
         // Then
         assertThat(postRepository.count()).isEqualTo(prePostCount + 1);
@@ -87,6 +92,6 @@ class JpaRepositoryTest {
 
         // Then
         assertThat(postRepository.count()).isEqualTo(prePostCount - 1);
-        assertThat(commentRepository.count()).isEqualTo(preCommentCount - 1);
+        assertThat(commentRepository.count()).isEqualTo(preCommentCount - deletedCommentSize);
     }
 }
