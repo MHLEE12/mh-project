@@ -4,6 +4,8 @@ import com.mh.project.domain.Post;
 import com.mh.project.domain.QPost;
 import com.querydsl.core.types.dsl.DateTimeExpression;
 import com.querydsl.core.types.dsl.StringExpression;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
@@ -15,6 +17,12 @@ public interface PostRepository extends
         JpaRepository<Post, Long>,
         QuerydslPredicateExecutor<Post>,
         QuerydslBinderCustomizer<QPost> {
+
+    Page<Post> findByTitleContaining(String title, Pageable pageable);
+    Page<Post> findByContentContaining(String content, Pageable pageable);
+    Page<Post> findByUserAccount_UserIdContaining(String userId, Pageable pageable);
+    Page<Post> findByUserAccount_NicknameContaining(String nickname, Pageable pageable);
+    Page<Post> findByHashtag(String hashtag, Pageable pageable);
 
     @Override
     default void customize(QuerydslBindings bindings, QPost root) {
