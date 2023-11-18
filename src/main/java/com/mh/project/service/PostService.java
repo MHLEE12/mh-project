@@ -2,6 +2,7 @@ package com.mh.project.service;
 
 import com.mh.project.domain.Post;
 import com.mh.project.domain.type.SearchType;
+import com.mh.project.dto.CommentDTO;
 import com.mh.project.dto.PostDTO;
 import com.mh.project.dto.PostUpdateDTO;
 import com.mh.project.dto.PostWithCommentDTO;
