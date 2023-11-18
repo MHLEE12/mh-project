@@ -26,5 +26,5 @@ public interface CommentRepository extends
         bindings.bind(root.creUser).first(StringExpression::containsIgnoreCase);
     }
 
-    List<Comment> findbyPost_Id(Long articleId);
+    List<Comment> findByPostId(Long postId);
 }
