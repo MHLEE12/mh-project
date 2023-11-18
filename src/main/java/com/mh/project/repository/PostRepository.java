@@ -18,7 +18,11 @@ public interface PostRepository extends
         QuerydslPredicateExecutor<Post>,
         QuerydslBinderCustomizer<QPost> {
 
-    Page<Post> findByTitle(String title, Pageable pageable);
+    Page<Post> findByTitleContaining(String title, Pageable pageable);
+    Page<Post> findByContentContaining(String content, Pageable pageable);
+    Page<Post> findByUserAccount_UserIdContaining(String userId, Pageable pageable);
+    Page<Post> findByUserAccount_NicknameContaining(String nickname, Pageable pageable);
+    Page<Post> findByHashtag(String hashtag, Pageable pageable);
 
     @Override
     default void customize(QuerydslBindings bindings, QPost root) {
