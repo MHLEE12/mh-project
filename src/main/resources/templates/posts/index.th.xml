@@ -2,4 +2,16 @@
 <thlogic>
     <attr sel="#header" th:replace="common/header :: header" />
     <attr sel="#footer" th:replace="common/footer :: footer" />
+
+    <attr sel="#post-table">
+        <attr sel="tbody" th:remove="all-but-first">
+            <attr sel="tr[0]" th:each="post : ${posts}">
+                <attr sel="td.id" th:text="${post.id}" />
+                <attr sel="td.title/a" th:text="${post.title}" th:ref="@{'/posts/' + ${post.id}}" />
+                <attr sel="td.hashtag" th:text="${post.hashtag}" />
+                <attr sel="td.user-id" th:text="${post.nickname}" />
+                <attr sel="td.creDate/time" th:datetime="${post.creDate}" th:text="${#temporals.format(post.creDate, 'yyyy-MM-dd')}" />
+            </attr>
+        </attr>
+    </attr>
 </thlogic>

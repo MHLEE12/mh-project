@@ -9,7 +9,9 @@
     <link href="/css/searchBar.css" rel="stylesheet">
 </head>
 <body>
-    <header id="header"></header>
+    <header id="header">
+        header 부분
+    </header>
 
     <main class="container">
 
@@ -48,23 +50,23 @@
         </div>
 
 
-        <table class="table">
+        <table class="table" id="post-table">
             <thead>
                 <tr>
-                    <th class="col-sm-1">no</th>
-                    <th class="col-6">제목</th>
-                    <th class="col-2">해시태그</th>
-                    <th class="col-2">작성자</th>
-                    <th class="col-lg-4">작성일</th>
+                    <th class="id-no col-sm-1">no</th>
+                    <th class="title col-6">제목</th>
+                    <th class="hashtag col-2">해시태그</th>
+                    <th class="user-id col-2">작성자</th>
+                    <th class="creDate col-lg-4">작성일</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                   <td>1</td>
-                   <td>제목입니다</td>
-                   <td>#test</td>
-                   <td>user1</td>
-                   <td>2023-11-13</td>
+                   <td class="id-no">1</td>
+                   <td class="title"><a>제목입니다</a></td>
+                   <td class="hashtag">#test</td>
+                   <td class="user-id">user1</td>
+                   <td class="creDate"><time>2023-11-13</time></td>
                 </tr>
                 <tr>
                    <td>2</td>
@@ -103,7 +105,9 @@
 
     </main>
 
-    <footer id="footer"></footer>
+    <footer id="footer">
+        footer 부분
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
