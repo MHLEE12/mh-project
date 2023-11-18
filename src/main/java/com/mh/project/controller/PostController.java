@@ -1,27 +1,46 @@
 package com.mh.project.controller;
 
+import com.mh.project.domain.type.SearchType;
+import com.mh.project.dto.response.PostResponse;
+import com.mh.project.dto.response.PostWithCommentResponse;
+import com.mh.project.service.PostService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RequestMapping("/posts")
 @Controller
 public class PostController {
 
+    private final PostService postService;
+
     @GetMapping
-    public String posts(ModelMap map) {
-        map.addAttribute("posts", List.of());
+    public String posts(
+            @RequestParam(required = false) SearchType searchType,
+            @RequestParam(required = false) String searchValue,
+            @PageableDefault(size = 10, sort = "creDate", direction = Sort.Direction.DESC) Pageable pageable,
+            ModelMap map
+    ) {
+
+        map.addAttribute("posts", postService.searchPosts(searchType, searchValue, pageable).map(PostResponse::from));
         return "posts/index";
     }
 
     @GetMapping("/{postId}")
-    public String posts(@PathVariable Long postId, ModelMap map) {
-        map.addAttribute("post", "post"); // TODO: 실제 데이터 넣어야 함.
-        map.addAttribute("comments", List.of());
+    public String post(@PathVariable Long postId, ModelMap map) {
+        PostWithCommentResponse postWithComments = PostWithCommentResponse.from(postService.getPost(postId));
+        map.addAttribute("post", postWithComments);
+        map.addAttribute("comments", postWithComments.commentsResponse());
         return "posts/detail";
     }
 }

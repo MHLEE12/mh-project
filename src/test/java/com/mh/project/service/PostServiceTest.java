@@ -4,7 +4,6 @@ import com.mh.project.domain.Post;
 import com.mh.project.domain.UserAccount;
 import com.mh.project.domain.type.SearchType;
 import com.mh.project.dto.PostDTO;
-import com.mh.project.dto.PostUpdateDTO;
 import com.mh.project.dto.PostWithCommentDTO;
 import com.mh.project.dto.UserAccountDTO;
 import com.mh.project.repository.PostRepository;
@@ -53,17 +52,17 @@ class PostServiceTest {
         SearchType searchType = SearchType.TITLE;
         String searchKeyword = "title";
         Pageable pageable = Pageable.ofSize(20);
-        given(postRepository.findByTitle(searchKeyword, pageable)).willReturn(Page.empty());
+        given(postRepository.findByTitleContaining(searchKeyword, pageable)).willReturn(Page.empty());
 
         // When
         Page<PostDTO> posts = sut.searchPosts(searchType, searchKeyword, pageable);
 
         // Then
         assertThat(posts).isEmpty();
-        then(postRepository).should().findByTitle(searchKeyword, pageable);
+        then(postRepository).should().findByTitleContaining(searchKeyword, pageable);
     }
 
-    @DisplayName("게시글 검색하면 해당 게시글 리스트를 반환한다.")
+    @DisplayName("게시글 조회하면 해당 게시글 리스트를 반환한다.")
     @Test
     void searchPostsList() {
         // Given
@@ -86,16 +85,16 @@ class PostServiceTest {
     @Test
     void noneExistPostSelect_throwException() {
         // Given
-        Long noneExistPostId = 0L;
+        Long noneExistPostId = 100L;
         given(postRepository.findById(noneExistPostId)).willReturn(Optional.empty());
 
         // When
-        Throwable t = catchThrowable(() -> sut.getArticle(noneExistPostId));
+        Throwable t = catchThrowable(() -> sut.getPost(noneExistPostId));
 
         // Then
         assertThat(t)
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("게시글이 없습니다 - postId: " + noneExistPostId);
+                .hasMessage("게시글이 없습니다. - postId: " + noneExistPostId);
         then(postRepository).should().findById(noneExistPostId);
     }
 

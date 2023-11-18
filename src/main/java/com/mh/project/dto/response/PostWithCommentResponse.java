@@ -4,7 +4,9 @@ import com.mh.project.dto.PostWithCommentDTO;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public record PostWithCommentResponse(
         Long id,
@@ -14,12 +16,12 @@ public record PostWithCommentResponse(
         LocalDateTime creDate,
         String email,
         String nickname,
-        Set<PostCommentResponse> postCommentResponses
+        Set<CommentResponse> commentsResponse
 ) implements Serializable {
 
-    public PostWithCommentResponse of(Long id, String title, String content, String hashtag, LocalDateTime creDate, String email, String nickname, Set<PostCommentResponse> postCommentResponses) {
+    public PostWithCommentResponse of(Long id, String title, String content, String hashtag, LocalDateTime creDate, String email, String nickname, Set<CommentResponse> commentResponses) {
         return new PostWithCommentResponse(
-                id, title, content, hashtag, creDate, email, nickname, postCommentResponses);
+                id, title, content, hashtag, creDate, email, nickname, commentResponses);
     }
 
     public static PostWithCommentResponse from(PostWithCommentDTO dto) {
@@ -36,7 +38,9 @@ public record PostWithCommentResponse(
                 dto.creDate(),
                 dto.userAccountDTO().email(),
                 nickname,
-                dto.
+                dto.commentDTOs().stream()
+                        .map(CommentResponse::from)
+                        .collect(Collectors.toCollection(LinkedHashSet::new))
         );
     }
 }
