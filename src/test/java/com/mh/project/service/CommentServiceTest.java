@@ -37,8 +37,8 @@ class CommentServiceTest {
         // Given
         Long postId = 1L;
         Comment newComment = createComment("content");
-        given(commentRepository.findbyPost_Id(postId)).willReturn(List.of(newComment));
-        int haveComments = commentRepository.findbyPost_Id(postId).size();
+        given(commentRepository.findByPostId(postId)).willReturn(List.of(newComment));
+        int haveComments = commentRepository.findByPostId(postId).size();
 
         // When
         List<CommentDTO> actual = sut.searchComments(postId);
@@ -47,7 +47,7 @@ class CommentServiceTest {
         assertThat(actual)
                 .hasSize(haveComments)
                 .first().hasFieldOrPropertyWithValue("content", newComment.getContent());
-        then(commentRepository).should().findbyPost_Id(postId);
+        then(commentRepository).should().findByPostId(postId);
     }
 
     @DisplayName("댓글을 입력하면, 댓글이 저장된다.")
