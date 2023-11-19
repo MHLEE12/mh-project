@@ -3,15 +3,57 @@
     <attr sel="#header" th:replace="common/header :: header" />
     <attr sel="#footer" th:replace="common/footer :: footer" />
 
-    <attr sel="#post-table">
-        <attr sel="tbody" th:remove="all-but-first">
-            <attr sel="tr[0]" th:each="post : ${posts}">
-                <attr sel="td.id-no" th:text="${post.id}" />
-                <attr sel="td.title/a" th:text="${post.title}" th:href="@{'/posts/' + ${post.id}}" />
-                <attr sel="td.hashtag" th:text="${post.hashtag}" />
-                <attr sel="td.user-id" th:text="${post.nickname}" />
-                <attr sel="td.creDate/time" th:datetime="${post.creDate}" th:text="${#temporals.format(post.creDate, 'yyyy-MM-dd')}" />
+    <attr sel="main" th:object="${posts}">
+        <attr sel="#post-table">
+            <attr sel="thead/tr">
+                <attr sel="th.title/a" th:text="'제목'" th:href="@{/posts(
+                page=${posts.number},
+                sort='title' + (*{sort.getOrderFor('title')} != null ? (*{sort.getOrderFor('title').direction.name} != 'DESC' ? ',desc' : '') : '')
+            )}"/>
+                <attr sel="th.hashtag/a" th:text="'해시태그'" th:href="@{/posts(
+                page=${posts.number},
+                sort='hashtag' + (*{sort.getOrderFor('hashtag')} != null ? (*{sort.getOrderFor('hashtag').direction.name} != 'DESC' ? ',desc' : '') : '')
+            )}"/>
+                <attr sel="th.user-id/a" th:text="'작성자'" th:href="@{/posts(
+                page=${posts.number},
+                sort='userAccount.userId' + (*{sort.getOrderFor('userAccount.userId')} != null ? (*{sort.getOrderFor('userAccount.userId').direction.name} != 'DESC' ? ',desc' : '') : '')
+            )}"/>
+                <attr sel="th.creDate/a" th:text="'작성일'" th:href="@{/posts(
+                page=${posts.number},
+                sort='creDate' + (*{sort.getOrderFor('creDate')} != null ? (*{sort.getOrderFor('creDate').direction.name} != 'DESC' ? ',desc' : '') : '')
+            )}"/>
             </attr>
+
+
+            <attr sel="tbody" th:remove="all-but-first">
+                <attr sel="tr[0]" th:each="post : ${posts}">
+                    <attr sel="td.id-no" th:text="${post.id}" />
+                    <attr sel="td.title/a" th:text="${post.title}" th:href="@{'/posts/' + ${post.id}}" />
+                    <attr sel="td.hashtag" th:text="${post.hashtag}" />
+                    <attr sel="td.user-id" th:text="${post.nickname}" />
+                    <attr sel="td.creDate/time" th:datetime="${post.creDate}" th:text="${#temporals.format(post.creDate, 'yyyy-MM-dd')}" />
+                </attr>
+            </attr>
+        </attr>
+
+        <attr sel="#pagination">
+            <attr sel="li[0]/a"
+                  th:text="'prev'"
+                  th:href="@{/posts(page=${posts.number - 1})}"
+                  th:class="'page-link' + (${posts.number} <= 0 ? ' disabled' : '')"
+            />
+            <attr sel="li[1]" th:class="page-item" th:each="pageNumber : ${paginationBarNumbers}">
+                <attr sel="a"
+                      th:text="${pageNumber + 1}"
+                      th:href="@{/posts(page=${pageNumber})}"
+                      th:class="'page-link' + (${pageNumber} == ${posts.number} ? ' disabled' : '')"
+                />
+            </attr>
+            <attr sel="li[2]/a"
+                  th:text="'next'"
+                  th:href="@{/posts(page=${posts.number + 1})}"
+                  th:class="'page-link' + (${posts.number} >= ${posts.totalPages - 1} ? ' disabled' : '')"
+            />
         </attr>
     </attr>
 
