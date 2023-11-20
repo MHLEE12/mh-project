@@ -45,7 +45,7 @@ class JpaRepositoryTest {
         // Then
         assertThat(posts)
                 .isNotNull()
-                .hasSize(30);
+                .hasSize(60);
     }
 
     @DisplayName("jpa insert test")
