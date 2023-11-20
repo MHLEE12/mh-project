@@ -41,6 +41,7 @@ public class PostController {
 
         map.addAttribute("posts", postResponse);
         map.addAttribute("paginationBarNumbers", barNum);
+        map.addAttribute("searchTypes", SearchType.values());
 
         return "posts/index";
     }
