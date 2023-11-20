@@ -2,6 +2,7 @@ package com.mh.project.repository;
 
 import com.mh.project.domain.Post;
 import com.mh.project.domain.QPost;
+import com.mh.project.repository.querydsl.PostRepositoryCustom;
 import com.querydsl.core.types.dsl.DateTimeExpression;
 import com.querydsl.core.types.dsl.StringExpression;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource
 public interface PostRepository extends
         JpaRepository<Post, Long>,
+        PostRepositoryCustom,
         QuerydslPredicateExecutor<Post>,
         QuerydslBinderCustomizer<QPost> {
 
@@ -33,4 +35,5 @@ public interface PostRepository extends
         bindings.bind(root.creDate).first(DateTimeExpression::eq);
         bindings.bind(root.creUser).first(StringExpression::containsIgnoreCase);
     }
+
 }
