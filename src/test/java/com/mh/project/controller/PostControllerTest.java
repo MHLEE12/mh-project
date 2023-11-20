@@ -1,6 +1,7 @@
 package com.mh.project.controller;
 
 import com.mh.project.config.SecurityConfig;
+import com.mh.project.domain.type.SearchType;
 import com.mh.project.dto.PostWithCommentDTO;
 import com.mh.project.dto.UserAccountDTO;
 import com.mh.project.service.PaginationService;
@@ -57,6 +58,28 @@ public class PostControllerTest {
                 .andExpect(model().attributeExists("posts"))
                 .andExpect(model().attributeExists("paginationBarNumbers"));
         then(postService).should().searchPosts(eq(null), eq(null), any(Pageable.class));
+        then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
+    }
+
+    @DisplayName("[view][GET] 검색어가 들어간 게시글 리스트 페이지 - 검색어 게시글 정상 호출")
+    @Test
+    void insertSearchkeyword_showpostListPage() throws Exception {
+        // Given
+        SearchType searchType = SearchType.TITLE;
+        String searchValue = "title";
+        given(postService.searchPosts(eq(searchType), eq(searchValue), any(Pageable.class))).willReturn(Page.empty());
+        given(paginationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(List.of(0, 1, 2, 3, 4));
+
+        // When & Then
+        mvc.perform(get("/posts")
+                        .queryParam("searchType", searchType.name())
+                        .queryParam("searchValue", searchValue))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(view().name("posts/index"))
+                .andExpect(model().attributeExists("posts"))
+                .andExpect(model().attributeExists("searchTypes"));
+        then(postService).should().searchPosts(eq(searchType), eq(searchValue), any(Pageable.class));
         then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
     }
 
