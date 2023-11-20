@@ -10,6 +10,10 @@
         <attr sel="#creDate" th:datetime="*{creDate}" th:text="${#temporals.format(creDate, 'yyyy-MM-dd HH:mm:ss')}" />
         <attr sel="#hashtag" th:text="*{hashtag}" />
         <attr sel="#post-content/pre" th:text="*{content}" />
+
+        <attr sel="#prevBtn" th:href="@{'/posts/' + *{id - 1}}"
+                th:class="'page-link' + (*{id} <= 1 ? ' disabled' : '')"/>
+        <attr sel="#nextBtn" th:href="@{'/posts/' + *{id + 1}}" />
     </attr>
 
     <attr sel="#comments" th:remove="all-but-first">

@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RequestMapping("/posts")
@@ -46,6 +48,8 @@ public class PostController {
     @GetMapping("/{postId}")
     public String post(@PathVariable Long postId, ModelMap map) {
         PostWithCommentResponse postWithComments = PostWithCommentResponse.from(postService.getPost(postId));
+
+        map.addAttribute("totalPages", paginationService.currentPostSize());
         map.addAttribute("post", postWithComments);
         map.addAttribute("comments", postWithComments.commentsResponse());
         return "posts/detail";
