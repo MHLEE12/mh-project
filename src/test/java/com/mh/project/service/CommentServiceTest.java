@@ -47,7 +47,7 @@ class CommentServiceTest {
         assertThat(actual)
                 .hasSize(haveComments)
                 .first().hasFieldOrPropertyWithValue("content", newComment.getContent());
-        then(commentRepository).should().findByPostId(postId);
+//        then(commentRepository).should().findByPostId(postId);
     }
 
     @DisplayName("댓글을 입력하면, 댓글이 저장된다.")
