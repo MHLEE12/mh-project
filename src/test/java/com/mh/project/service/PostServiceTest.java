@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -43,6 +44,52 @@ class PostServiceTest {
         // Then
         assertThat(posts).isEmpty();
         then(postRepository).should().findAll(pageable);
+    }
+
+    @DisplayName("검색어 없이 해시태그 검색창에서 검색하면, 게시글 페이지를 반환한다.")
+    @Test
+    void noSearchParam_showHashtagsearchPage() {
+        // Given
+        Pageable pageable = Pageable.ofSize(20);
+
+
+        // When
+        Page<PostDTO> posts = sut.searchPostsViaHashtag(null, pageable);
+
+        // Then
+        assertThat(posts).isEqualTo(Page.empty(pageable));
+        then(postRepository).shouldHaveNoInteractions();
+    }
+
+    @DisplayName("검색어를 해시태그 검색창에 입력하면, 게시글 페이지를 반환한다.")
+    @Test
+    void insertSearchParam_showHashtagsearchPage() {
+        // Given
+        String hashtag = "#blue";
+        Pageable pageable = Pageable.ofSize(20);
+        given(postRepository.findByHashtag(hashtag, pageable)).willReturn(Page.empty(pageable));
+
+        // When
+        Page<PostDTO> posts = sut.searchPostsViaHashtag(hashtag, pageable);
+
+        // Then
+        assertThat(posts).isEqualTo(Page.empty(pageable));
+        then(postRepository).should().findByHashtag(hashtag, pageable);
+    }
+
+    @DisplayName("검색어를 해시태그 검색창에 입력하면, 해시태그 리스트를 보여준다.")
+    @Test
+    void insertHashtag_showHashtagList() {
+        // Given
+        List<String> expect = List.of("#java", "#spring", "#springboot");
+        given(postRepository.findAllDistinctHashtags()).willReturn(expect);
+
+        // When
+        List<String> actual = sut.getHashtags();
+
+        // Then
+        assertThat(actual).isEqualTo(expect);
+        then(postRepository).should().findAllDistinctHashtags();
     }
 
     @DisplayName("검색어와 함께 게시글을 검색하면, 게시글 페이지를 반환한다.")

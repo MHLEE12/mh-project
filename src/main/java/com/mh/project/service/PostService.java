@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -63,5 +64,18 @@ public class PostService {
 
     public void deletePost(long postId) {
         postRepository.deleteById(postId);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostDTO> searchPostsViaHashtag(String hashtag, Pageable pageable) {
+        if (hashtag == null || hashtag.isBlank()) {
+            return Page.empty(pageable);
+        }
+
+        return postRepository.findByHashtag(hashtag, pageable).map(PostDTO::from);
+    }
+
+    public List<String> getHashtags() {
+        return postRepository.findAllDistinctHashtags();
     }
 }
