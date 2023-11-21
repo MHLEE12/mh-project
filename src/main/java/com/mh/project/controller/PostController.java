@@ -1,6 +1,9 @@
 package com.mh.project.controller;
 
+import com.mh.project.domain.constant.FormStatus;
 import com.mh.project.domain.type.SearchType;
+import com.mh.project.dto.UserAccountDTO;
+import com.mh.project.dto.request.PostRequest;
 import com.mh.project.dto.response.PostResponse;
 import com.mh.project.dto.response.PostWithCommentResponse;
 import com.mh.project.service.PaginationService;
@@ -12,10 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,11 +48,13 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public String post(@PathVariable Long postId, ModelMap map) {
-        PostWithCommentResponse postWithComments = PostWithCommentResponse.from(postService.getPost(postId));
+        PostWithCommentResponse postWithComments = PostWithCommentResponse.from(postService.getPostWithComments(postId));
 
         map.addAttribute("totalPages", paginationService.currentPostSize());
         map.addAttribute("post", postWithComments);
         map.addAttribute("comments", postWithComments.commentsResponse());
+        map.addAttribute("totalCount", postService.getPostCount());
+
         return "posts/detail";
     }
 
@@ -72,5 +74,50 @@ public class PostController {
         map.addAttribute("searchType", SearchType.HASHTAG);
 
         return "posts/search-hashtag";
+    }
+
+    @GetMapping("/form")
+    public String postForm(ModelMap map) {
+        map.addAttribute("formStatus", FormStatus.CREATE);
+
+        return "posts/form";
+    }
+
+    @PostMapping("/form")
+    public String postingNewPost(PostRequest postRequest) {
+        // TODO: 인증 정보 넣어야 함.
+        postService.savePost(postRequest.toDTO(UserAccountDTO.of(
+                "mh", "abc123", "test@test.test", "MH", "memo", null, null, null, null
+        )));
+
+        return "redirect:/posts";
+    }
+
+    @GetMapping("/{postId}/form")
+    public String updatePost(@PathVariable Long postId, ModelMap map) {
+        PostResponse post = PostResponse.from(postService.getPost(postId));
+
+        map.addAttribute("post", post);
+        map.addAttribute("formStatus", FormStatus.UPDATE);
+
+        return "posts/form";
+    }
+
+    @PostMapping ("/{postId}/form")
+    public String updatePost(@PathVariable Long postId, PostRequest postRequest) {
+        // TODO: 인증 정보를 넣어줘야 한다.
+        postService.updatePost(postId, postRequest.toDTO(UserAccountDTO.of(
+                "mh", "abc123", "test@test.test", "MH", "memo", null, null, null, null
+        )));
+
+        return "redirect:/posts/" + postId;
+    }
+
+    @PostMapping ("/{postId}/delete")
+    public String deletePost(@PathVariable Long postId) {
+        // TODO: 인증 정보를 넣어줘야 한다.
+        postService.deletePost(postId);
+
+        return "redirect:/posts";
     }
 }

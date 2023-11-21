@@ -118,7 +118,7 @@ class PostServiceTest {
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
 
         // When
-        PostWithCommentDTO dto = sut.getPost(postId);
+        PostDTO dto = sut.getPost(postId);
 
         // Then
         assertThat(dto)
@@ -168,7 +168,7 @@ class PostServiceTest {
         given(postRepository.getReferenceById(dto.id())).willReturn(post);
 
         // When
-        sut.updatePost(dto);
+        sut.updatePost(dto.id(), dto);
 
         // Then
         assertThat(post)
@@ -186,7 +186,7 @@ class PostServiceTest {
         given(postRepository.getReferenceById(dto.id())).willThrow(EntityNotFoundException.class);
 
         // When
-        sut.updatePost(dto);
+        sut.updatePost(dto.id(), dto);
 
         // Then
         then(postRepository).should().getReferenceById(dto.id());
@@ -245,7 +245,6 @@ class PostServiceTest {
 
     private UserAccountDTO createUserAccountDTO() {
         return UserAccountDTO.of(
-                1L,
                 "mh",
                 "pw",
                 "test@test.test",

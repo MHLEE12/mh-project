@@ -1,16 +1,18 @@
 package com.mh.project.controller;
 
 import com.mh.project.config.SecurityConfig;
+import com.mh.project.domain.constant.FormStatus;
 import com.mh.project.domain.type.SearchType;
+import com.mh.project.dto.PostDTO;
 import com.mh.project.dto.PostWithCommentDTO;
 import com.mh.project.dto.UserAccountDTO;
+import com.mh.project.dto.request.PostRequest;
+import com.mh.project.dto.response.PostResponse;
 import com.mh.project.service.PaginationService;
 import com.mh.project.service.PostService;
-import io.micrometer.core.instrument.search.Search;
-import org.junit.jupiter.api.Disabled;
+import com.mh.project.util.FormDataEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,21 +29,25 @@ import java.util.List;
 import java.util.Set;
 
 import static org.mockito.BDDMockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DisplayName("View Controller")
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, FormDataEncoder.class})
 @WebMvcTest(PostController.class)
 public class PostControllerTest {
 
     private final MockMvc mvc;
+    private final FormDataEncoder formDataEncoder;
 
     @MockBean private PostService postService;
     @MockBean private PaginationService paginationService;
 
-    public PostControllerTest(@Autowired MockMvc mvc) {
+    public PostControllerTest(@Autowired MockMvc mvc, @Autowired FormDataEncoder formDataEncoder) {
         this.mvc = mvc;
+        this.formDataEncoder = formDataEncoder;
     }
 
     @DisplayName("[view][GET] 게시글 리스트 페이지 - 정상 호출")
@@ -118,7 +124,9 @@ public class PostControllerTest {
     void show_postDetailPage() throws Exception {
         // Given
         Long postId = 1L;
-        given(postService.getPost(postId)).willReturn(createPostWithCommentDTO());
+        Long totalCount = 1L;
+        given(postService.getPostWithComments(postId)).willReturn(createPostWithCommentDTO());
+        given(postService.getPostCount()).willReturn(totalCount);
 
         // When & Then
         mvc.perform(get("/posts/" + postId))
@@ -126,8 +134,10 @@ public class PostControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("posts/detail"))
                 .andExpect(model().attributeExists("post"))
-                .andExpect(model().attributeExists("comments"));
-        then(postService).should().getPost(postId);
+                .andExpect(model().attributeExists("comments"))
+                .andExpect(model().attribute("totalCount", totalCount));
+        then(postService).should().getPostWithComments(postId);
+        then(postService).should().getPostCount();
     }
 
     @DisplayName("[view][GET] 게시글 해시태그 검색 페이지 - 검색어 입력X, 정상 호출")
@@ -176,17 +186,105 @@ public class PostControllerTest {
         then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
     }
 
-    @Disabled("구현 중")
-    @DisplayName("[view][GET] 게시글 해시태그 검색 페이지 - 정상 호출")
+    @DisplayName("[view][GET] 새 게시글 작성 페이지")
     @Test
-    void show_searchHashtagPage() throws Exception {
+    void insertNothing_showNewPost() throws Exception {
         // Given
 
         // When & Then
-        mvc.perform(get("/posts/search-hashtag"))
+        mvc.perform(get("/posts/form"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
-                .andExpect(view().name("posts/search-hashtag"));
+                .andExpect(view().name("posts/form"))
+                .andExpect(model().attribute("formStatus", FormStatus.CREATE));
+    }
+
+    @DisplayName("[view][POST] 새 게시글 등록 - 정상 호출")
+    @Test
+    void givenNewpostInfo_whenRequesting_thenSavesNewpost() throws Exception {
+        // Given
+        PostRequest postRequest = PostRequest.of("new title", "new content", "#new");
+        willDoNothing().given(postService).savePost(any(PostDTO.class));
+
+        // When & Then
+        mvc.perform(
+                        post("/posts/form")
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(formDataEncoder.encode(postRequest))
+                                .with(csrf())
+                )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/posts"))
+                .andExpect(redirectedUrl("/posts"));
+        then(postService).should().savePost(any(PostDTO.class));
+    }
+
+    @DisplayName("[view][GET] 게시글 수정 페이지")
+    @Test
+    void givenNothing_whenRequesting_thenReturnsUpdatedpostPage() throws Exception {
+        // Given
+        long postId = 1L;
+        PostDTO dto = createPostDTO();
+        given(postService.getPost(postId)).willReturn(dto);
+
+        // When & Then
+        mvc.perform(get("/posts/" + postId + "/form"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(view().name("posts/form"))
+                .andExpect(model().attribute("post", PostResponse.from(dto)))
+                .andExpect(model().attribute("formStatus", FormStatus.UPDATE));
+        then(postService).should().getPost(postId);
+    }
+
+    @DisplayName("[view][POST] 게시글 수정 - 정상 호출")
+    @Test
+    void givenUpdatedpostInfo_whenRequesting_thenUpdatesNewpost() throws Exception {
+        // Given
+        Long postId = 1L;
+        PostRequest postRequest = PostRequest.of("new title", "new content", "#new");
+        willDoNothing().given(postService).updatePost(eq(postId), any(PostDTO.class));
+
+        // When & Then
+        mvc.perform(
+                        post("/posts/" + postId + "/form")
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(formDataEncoder.encode(postRequest))
+                                .with(csrf())
+                )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/posts/" + postId))
+                .andExpect(redirectedUrl("/posts/" + postId));
+        then(postService).should().updatePost(eq(postId), any(PostDTO.class));
+    }
+
+    @DisplayName("[view][POST] 게시글 삭제 - 정상 호출")
+    @Test
+    void givenpostIdToDelete_whenRequesting_thenDeletesPost() throws Exception {
+        // Given
+        Long postId = 1L;
+        willDoNothing().given(postService).deletePost(postId);
+
+        // When & Then
+        mvc.perform(
+                        post("/posts/" + postId + "/delete")
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .with(csrf())
+                )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/posts"))
+                .andExpect(redirectedUrl("/posts"));
+        then(postService).should().deletePost(postId);
+    }
+
+
+    private PostDTO createPostDTO() {
+        return PostDTO.of(
+                createUserAccountDTO(),
+                "title",
+                "content",
+                "#java"
+        );
     }
 
     private PostWithCommentDTO createPostWithCommentDTO() {
@@ -206,7 +304,6 @@ public class PostControllerTest {
 
     private UserAccountDTO createUserAccountDTO() {
         return UserAccountDTO.of(
-                1L,
                 "mh",
                 "pw",
                 "test@test.test",

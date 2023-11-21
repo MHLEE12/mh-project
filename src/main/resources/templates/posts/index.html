@@ -49,9 +49,9 @@
             </div>
         </div>
 
-
-        <table class="table" id="post-table">
-            <thead>
+        <div class="row">
+            <table class="table" id="post-table">
+                <thead>
                 <tr>
                     <th class="id-no col-sm-1">no</th>
                     <th class="title col-6"><a>제목</a></th>
@@ -59,47 +59,55 @@
                     <th class="user-id col-2"><a>작성자</a></th>
                     <th class="creDate col-lg-4"><a>작성일</a></th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 <tr>
-                   <td class="id-no">1</td>
-                   <td class="title"><a>제목입니다</a></td>
-                   <td class="hashtag">#test</td>
-                   <td class="user-id">user1</td>
-                   <td class="creDate"><time>2023-11-13</time></td>
+                    <td class="id-no">1</td>
+                    <td class="title"><a>제목입니다</a></td>
+                    <td class="hashtag">#test</td>
+                    <td class="user-id">user1</td>
+                    <td class="creDate"><time>2023-11-13</time></td>
                 </tr>
                 <tr>
-                   <td>2</td>
-                   <td>제목입니다2</td>
-                   <td>#test2</td>
-                   <td>user2</td>
-                   <td>2023-11-12</td>
+                    <td>2</td>
+                    <td>제목입니다2</td>
+                    <td>#test2</td>
+                    <td>user2</td>
+                    <td>2023-11-12</td>
                 </tr>
                 <tr>
-                   <td>3</td>
-                   <td>제목입니다3</td>
-                   <td>#test3</td>
-                   <td>user3</td>
-                   <td>2023-11-11</td>
+                    <td>3</td>
+                    <td>제목입니다3</td>
+                    <td>#test3</td>
+                    <td>user3</td>
+                    <td>2023-11-11</td>
                 </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a class="btn btn-primary me-md-2" role="button" id="write-post">글쓰기</a>
+            </div>
+        </div>
 
-        <nav id="pagination" aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-                <li class="page-item">
-                    <a class="page-link" href="#" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <div class="row">
+            <nav id="pagination" aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
 
     </main>
 
