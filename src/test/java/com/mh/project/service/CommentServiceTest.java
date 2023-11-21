@@ -135,7 +135,7 @@ class CommentServiceTest {
     }
 
     private UserAccountDTO createUserAccountDTO() {
-        return UserAccountDTO.of(1L, "mh", "password", "test@test.test", "MH", "memo", LocalDateTime.now(),"mh", LocalDateTime.now(), "mh");
+        return UserAccountDTO.of("mh", "password", "test@test.test", "MH", "memo", LocalDateTime.now(),"mh", LocalDateTime.now(), "mh");
     }
 
     private Comment createComment(String content) {

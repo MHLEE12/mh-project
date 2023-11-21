@@ -1,12 +1,14 @@
 package com.mh.project.service;
 
 import com.mh.project.domain.Post;
+import com.mh.project.domain.UserAccount;
 import com.mh.project.domain.type.SearchType;
 import com.mh.project.dto.CommentDTO;
 import com.mh.project.dto.PostDTO;
 import com.mh.project.dto.PostUpdateDTO;
 import com.mh.project.dto.PostWithCommentDTO;
 import com.mh.project.repository.PostRepository;
+import com.mh.project.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserAccountRepository userAccountRepository;
 
     @Transactional(readOnly = true)
     public Page<PostDTO> searchPosts(SearchType searchType, String searchKeyword, Pageable pageable) {
@@ -41,19 +44,27 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostWithCommentDTO getPost(Long postId) {
+    public PostWithCommentDTO getPostWithComments(Long postId) {
         return postRepository.findById(postId)
                 .map(PostWithCommentDTO::from)
                 .orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다. - postId: " + postId));
     }
 
-    public void savePost(PostDTO dto) {
-        postRepository.save(dto.toEntity());
+    @Transactional(readOnly = true)
+    public PostDTO getPost(Long postId) {
+        return postRepository.findById(postId)
+                .map(PostDTO::from)
+                .orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다 - postId: " + postId));
     }
 
-    public void updatePost(PostDTO dto) {
+    public void savePost(PostDTO dto) {
+        UserAccount userAccount = userAccountRepository.getReferenceById(dto.userAccountDTO().userId());
+        postRepository.save(dto.toEntity(userAccount));
+    }
+
+    public void updatePost(Long postId, PostDTO dto) {
         try {
-            Post post = postRepository.getReferenceById(dto.id());
+            Post post = postRepository.getReferenceById(postId);
             if (dto.title() != null) { post.setTitle(dto.title()); }
             if (dto.content() != null) { post.setContent(dto.content()); }
             post.setHashtag(dto.hashtag());
@@ -77,5 +88,9 @@ public class PostService {
 
     public List<String> getHashtags() {
         return postRepository.findAllDistinctHashtags();
+    }
+
+    public Long getPostCount() {
+        return postRepository.count();
     }
 }
