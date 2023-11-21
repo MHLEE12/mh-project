@@ -1,6 +1,7 @@
 package com.mh.project.dto;
 
 import com.mh.project.domain.Post;
+import com.mh.project.domain.UserAccount;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +19,10 @@ public record PostDTO(
         LocalDateTime modDate,
         String modUser
 ) {
+
+    public static PostDTO of(UserAccountDTO userAccountDTO, String title, String content, String hashtag) {
+        return new PostDTO(null, userAccountDTO, title, content, hashtag, null, null, null, null);
+    }
 
     public static PostDTO of(Long id, UserAccountDTO userAccountDTO, String title, String content, String hashtag, LocalDateTime creDate, String creUser, LocalDateTime modDate, String modUser) {
         return new PostDTO(id, userAccountDTO, title, content, hashtag, creDate, creUser, modDate, modUser);
@@ -37,9 +42,9 @@ public record PostDTO(
         );
     }
 
-    public Post toEntity() {
+    public Post toEntity(UserAccount userAccount) {
         return Post.of(
-                userAccountDTO.toEntity(),
+                userAccount,
                 title,
                 content,
                 hashtag
