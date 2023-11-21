@@ -11,6 +11,12 @@
         <attr sel="#hashtag" th:text="*{hashtag}" />
         <attr sel="#post-content/pre" th:text="*{content}" />
 
+        <attr sel="#post-buttons">
+            <attr sel="#delete-article-form" th:action="'/posts/' + *{id} + '/delete'" th:method="post">
+                <attr sel="#update-post" th:href="'/posts/' + *{id} + '/form'" />
+            </attr>
+        </attr>
+
         <attr sel="#prevBtn" th:href="@{'/posts/' + *{id - 1}}"
                 th:class="'page-link' + (*{id} <= 1 ? ' disabled' : '')"/>
         <attr sel="#nextBtn" th:href="@{'/posts/' + *{id + 1}}"
