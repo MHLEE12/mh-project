@@ -7,6 +7,7 @@ import com.mh.project.dto.CommentDTO;
 import com.mh.project.dto.UserAccountDTO;
 import com.mh.project.repository.CommentRepository;
 import com.mh.project.repository.PostRepository;
+import com.mh.project.repository.UserAccountRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +29,10 @@ import static org.mockito.BDDMockito.*;
 class CommentServiceTest {
 
     @InjectMocks private CommentService sut;
+
     @Mock private PostRepository postRepository;
     @Mock private CommentRepository commentRepository;
+    @Mock private UserAccountRepository userAccountRepository;
 
     @DisplayName("게시글id로 해당 게시글의 댓글 리스트가 반환된다.")
     @Test
@@ -56,6 +59,7 @@ class CommentServiceTest {
         // Given
         CommentDTO dto = createCommentDTO("댓글");
         given(postRepository.getReferenceById(dto.postId())).willReturn(createPost());
+        given(userAccountRepository.getReferenceById(dto.userAccountDTO().userId())).willReturn(createUserAccount());
         given(commentRepository.save(any(Comment.class))).willReturn(null);
 
         // When
@@ -63,6 +67,7 @@ class CommentServiceTest {
 
         // Then
         then(postRepository).should().getReferenceById(dto.postId());
+        then(userAccountRepository).should().getReferenceById(dto.userAccountDTO().userId());
         then(commentRepository).should().save(any(Comment.class));
     }
 
@@ -78,6 +83,7 @@ class CommentServiceTest {
 
         // Then
         then(postRepository).should().getReferenceById(dto.postId());
+        then(userAccountRepository).shouldHaveNoInteractions();
         then(commentRepository).shouldHaveNoInteractions();
     }
 
