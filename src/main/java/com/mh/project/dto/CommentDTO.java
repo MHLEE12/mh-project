@@ -2,6 +2,7 @@ package com.mh.project.dto;
 
 import com.mh.project.domain.Comment;
 import com.mh.project.domain.Post;
+import com.mh.project.domain.UserAccount;
 
 import java.time.LocalDateTime;
 
@@ -18,8 +19,12 @@ public record CommentDTO(
         LocalDateTime modDate,
         String modUser) {
 
-    public static CommentDTO of(Long id, Long articleId, UserAccountDTO userAccountDto, String content, LocalDateTime creDate, String creUser, LocalDateTime modDate, String modUser) {
-        return new CommentDTO(id, articleId, userAccountDto, content, creDate, creUser, modDate, modUser);
+    public static CommentDTO of(Long postId, UserAccountDTO userAccountDto, String content) {
+        return new CommentDTO(null, postId, userAccountDto, content, null, null, null, null);
+    }
+
+    public static CommentDTO of(Long id, Long postId, UserAccountDTO userAccountDto, String content, LocalDateTime creDate, String creUser, LocalDateTime modDate, String modUser) {
+        return new CommentDTO(id, postId, userAccountDto, content, creDate, creUser, modDate, modUser);
     }
 
     public static CommentDTO from(Comment entity) {
@@ -35,10 +40,10 @@ public record CommentDTO(
         );
     }
 
-    public Comment toEntity(Post entity) {
+    public Comment toEntity(Post post, UserAccount userAccount) {
         return Comment.of(
-                entity,
-                userAccountDTO.toEntity(),
+                post,
+                userAccount,
                 content
         );
     }
