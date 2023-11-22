@@ -11,23 +11,38 @@
         <attr sel="#hashtag" th:text="*{hashtag}" />
         <attr sel="#post-content/pre" th:text="*{content}" />
 
-        <attr sel="#post-buttons">
-            <attr sel="#delete-article-form" th:action="'/posts/' + *{id} + '/delete'" th:method="post">
+        <attr sel="#post-buttons" >
+            <attr sel="#delete-post-form" th:action="'/posts/' + *{id} + '/delete'" th:method="post">
                 <attr sel="#update-post" th:href="'/posts/' + *{id} + '/form'" />
             </attr>
         </attr>
 
-        <attr sel="#prevBtn" th:href="@{'/posts/' + *{id - 1}}"
-                th:class="'page-link' + (*{id} <= 1 ? ' disabled' : '')"/>
-        <attr sel="#nextBtn" th:href="@{'/posts/' + *{id + 1}}"
-              th:class="'page-link' + (*{id} <= ${totalPages} ? ' disabled' : '')"/>
-    </attr>
+        <attr sel=".post-id" th:name="postId" th:value="*{id}" />
+        <attr sel="#comment-form" th:action="@{/comments/new}" th:method="post">
+            <attr sel="#comment-textbox" th:name="content" />
+        </attr>
 
-    <attr sel="#comments" th:remove="all-but-first">
-        <attr sel="li[0]" th:each="comment : ${comments}">
-            <attr sel="div/strong" th:text="${comment.nickname}" />
-            <attr sel="div/small/time" th:datetime="${comment.creDate}" th:text="${#temporals.format(comment.creDate, 'yyyy-MM-dd HH:mm:ss')}" />
-            <attr sel="div/p" th:text="${comment.content}" />
+        <attr sel="#post-comments" th:remove="all-but-first">
+            <attr sel="li[0]" th:each="comment : ${comments}">
+                <attr sel="form" th:action="'/comments/' + ${comment.id} + '/delete'" th:method="post">
+                    <attr sel="div/strong" th:text="${comment.nickname}" />
+                    <attr sel="div/small/time" th:datetime="${comment.creDate}" th:text="${#temporals.format(comment.creDate, 'yyyy-MM-dd HH:mm:ss')}" />
+                    <attr sel="div/p" th:text="${comment.content}" />
+                </attr>
+            </attr>
+        </attr>
+
+        <attr sel="#pagination">
+            <attr sel="ul">
+                <attr sel="li[0]/a"
+                      th:href="*{id} - 1 <= 0 ? '#' : |/posts/*{id - 1}|"
+                      th:class="'page-link' + (*{id} - 1 <= 0 ? ' disabled' : '')"
+                />
+                <attr sel="li[1]/a"
+                      th:href="*{id} + 1 > ${totalCount} ? '#' : |/posts/*{id + 1}|"
+                      th:class="'page-link' + (*{id} + 1 > ${totalCount} ? ' disabled' : '')"
+                />
+            </attr>
         </attr>
     </attr>
 </thlogic>
