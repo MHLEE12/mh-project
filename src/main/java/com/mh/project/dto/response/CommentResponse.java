@@ -10,11 +10,12 @@ public record CommentResponse(
         String content,
         LocalDateTime creDate,
         String email,
-        String nickname
+        String nickname,
+        String userId
 ) {
 
-    public static CommentResponse of(Long id, String content, LocalDateTime creDate, String email, String nickname) {
-        return new CommentResponse(id, content, creDate, email, nickname);
+    public static CommentResponse of(Long id, String content, LocalDateTime creDate, String email, String nickname, String userId) {
+        return new CommentResponse(id, content, creDate, email, nickname, userId);
     }
 
     public static CommentResponse from(CommentDTO dto) {
@@ -28,7 +29,8 @@ public record CommentResponse(
                 dto.content(),
                 dto.creDate(),
                 dto.userAccountDTO().email(),
-                nickname
+                nickname,
+                dto.userAccountDTO().userId()
         );
     }
 }

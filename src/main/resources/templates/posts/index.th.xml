@@ -53,7 +53,7 @@
             </attr>
         </attr>
 
-        <attr sel="write-post" th:href="@{/posts/form}" />
+        <attr sel="#write-post" sec:authorize="isAuthenticated()" th:href="@{/posts/form}" />
 
         <attr sel="#pagination">
             <attr sel="li[0]/a"

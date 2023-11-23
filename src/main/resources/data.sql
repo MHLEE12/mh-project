@@ -1,6 +1,6 @@
 -- 테스트 계정
-insert into user_account (user_id, user_password, nickname, email, memo, cre_date, cre_user, mod_date, mod_user) values ('mh1', 'a123', 'MH', 'test@test.test', 'memo', now(), 'mh1', now(), 'mh1');
-insert into user_account (user_id, user_password, nickname, email, memo, cre_date, cre_user, mod_date, mod_user) values ('mh2', 'a123', 'MH2', 'test2@test.test', 'memo2', now(), 'mh2', now(), 'mh2');
+insert into user_account (user_id, user_password, nickname, email, memo, cre_date, cre_user, mod_date, mod_user) values ('mh1', '{noop}a123', 'MH', 'test@test.test', 'memo', now(), 'mh1', now(), 'mh1');
+insert into user_account (user_id, user_password, nickname, email, memo, cre_date, cre_user, mod_date, mod_user) values ('mh2', '{noop}a123', 'MH2', 'test2@test.test', 'memo2', now(), 'mh2', now(), 'mh2');
 
 -- 게시글
 insert into post (user_id, title, content, hashtag, cre_date, cre_User, mod_date, mod_User) values ('mh1', 'Proin leo odio, porttitor id, consequat in, consequat ut,', 'nulla. Sed accumsan felis. Ut at dolor quis odio consequat varius.', '#red', '2023-10-22 05:00:32', 'Berkley', '2022-11-23 16:26:36', 'Blondell');

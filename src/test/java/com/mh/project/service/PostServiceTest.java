@@ -7,6 +7,7 @@ import com.mh.project.dto.PostDTO;
 import com.mh.project.dto.PostWithCommentDTO;
 import com.mh.project.dto.UserAccountDTO;
 import com.mh.project.repository.PostRepository;
+import com.mh.project.repository.UserAccountRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,7 @@ class PostServiceTest {
 
     @InjectMocks private PostService sut; // system under test
     @Mock private PostRepository postRepository;
+    @Mock private UserAccountRepository userAccountRepository;
 
     @DisplayName("검색어 없이 게시글을 검색하면, 게시글 페이지를 반환한다.")
     @Test
@@ -141,7 +143,7 @@ class PostServiceTest {
         // Then
         assertThat(t)
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("게시글이 없습니다. - postId: " + noneExistPostId);
+                .hasMessage("게시글이 없습니다 - postId: " + noneExistPostId);
         then(postRepository).should().findById(noneExistPostId);
     }
 
@@ -166,6 +168,7 @@ class PostServiceTest {
         Post post = createPost();
         PostDTO dto = createPostDTO("제목 수정", "내용 수정", "#spring");
         given(postRepository.getReferenceById(dto.id())).willReturn(post);
+        given(userAccountRepository.getReferenceById(dto.userAccountDTO().userId())).willReturn(dto.userAccountDTO().toEntity());
 
         // When
         sut.updatePost(dto.id(), dto);
@@ -176,6 +179,7 @@ class PostServiceTest {
                 .hasFieldOrPropertyWithValue("content", dto.content())
                 .hasFieldOrPropertyWithValue("hashtag", dto.hashtag());
         then(postRepository).should().getReferenceById(dto.id());
+        then(userAccountRepository).should().getReferenceById(dto.userAccountDTO().userId());
     }
 
     @DisplayName("존재하지 않는 게시글의 수정 정보를 입력하면, 경고 로그가 찍히고, 아무런 작동을 하지 않는다.")
@@ -197,13 +201,14 @@ class PostServiceTest {
     void insertId_deletePost() {
         // Given
         Long postId = 1L;
-        willDoNothing().given(postRepository).deleteById(postId);
+        String userId = "mh";
+        willDoNothing().given(postRepository).deleteByIdAndUserAccount_UserId(postId, userId);
 
         // When
-        sut.deletePost(1L);
+        sut.deletePost(1L, userId);
 
         // Then
-        then(postRepository).should().deleteById(postId);
+        then(postRepository).should().deleteByIdAndUserAccount_UserId(postId, userId);
     }
 
     private UserAccount createUserAccount() {

@@ -88,8 +88,8 @@ public class Post {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Post post)) return false;
-        return id != null && id.equals(post.id);
+        if (!(o instanceof Post that)) return false;
+        return id != null && id.equals(that.getId());
     }
 
     @Override

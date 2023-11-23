@@ -1,6 +1,5 @@
 package com.mh.project.controller;
 
-import com.mh.project.config.SecurityConfig;
 import com.mh.project.domain.constant.FormStatus;
 import com.mh.project.domain.type.SearchType;
 import com.mh.project.dto.PostDTO;
@@ -11,6 +10,7 @@ import com.mh.project.dto.response.PostResponse;
 import com.mh.project.service.PaginationService;
 import com.mh.project.service.PostService;
 import com.mh.project.util.FormDataEncoder;
+import com.mh.project.util.TestSecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -35,7 +38,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DisplayName("View Controller")
-@Import({SecurityConfig.class, FormDataEncoder.class})
+@Import({TestSecurityConfig.class, FormDataEncoder.class})
 @WebMvcTest(PostController.class)
 public class PostControllerTest {
 
@@ -119,7 +122,21 @@ public class PostControllerTest {
         then(paginationService).should().getPaginationBarNumbers(pageable.getPageNumber(), Page.empty().getTotalPages());
     }
 
-    @DisplayName("[view][GET] 게시글 상세 페이지 - 정상 호출")
+    @DisplayName("[view][GET] 게시글 상세 페이지 - 인증 안된 사용자는 로그인 페이지로 이동")
+    @Test
+    void noAuth_goLoginPage() throws Exception {
+        // Given
+        Long postId = 1L;
+
+        // When & Then
+        mvc.perform(get("/posts/" + postId))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+        then(postService).shouldHaveNoInteractions();
+    }
+
+    @WithMockUser
+    @DisplayName("[view][GET] 게시글 상세 페이지 - 정상 호출, 인증된 사용자")
     @Test
     void show_postDetailPage() throws Exception {
         // Given
@@ -186,6 +203,7 @@ public class PostControllerTest {
         then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
     }
 
+    @WithMockUser
     @DisplayName("[view][GET] 새 게시글 작성 페이지")
     @Test
     void insertNothing_showNewPost() throws Exception {
@@ -199,6 +217,7 @@ public class PostControllerTest {
                 .andExpect(model().attribute("formStatus", FormStatus.CREATE));
     }
 
+    @WithUserDetails(value = "mhTest", userDetailsServiceBeanName = "userDetailService", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 새 게시글 등록 - 정상 호출")
     @Test
     void givenNewpostInfo_whenRequesting_thenSavesNewpost() throws Exception {
@@ -219,7 +238,8 @@ public class PostControllerTest {
         then(postService).should().savePost(any(PostDTO.class));
     }
 
-    @DisplayName("[view][GET] 게시글 수정 페이지")
+    @WithMockUser
+    @DisplayName("[view][GET] 게시글 수정 페이지 - 정상 호출, 인증된 사용자")
     @Test
     void givenNothing_whenRequesting_thenReturnsUpdatedpostPage() throws Exception {
         // Given
@@ -237,6 +257,7 @@ public class PostControllerTest {
         then(postService).should().getPost(postId);
     }
 
+    @WithUserDetails(value = "mhTest", userDetailsServiceBeanName = "userDetailService", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 게시글 수정 - 정상 호출")
     @Test
     void givenUpdatedpostInfo_whenRequesting_thenUpdatesNewpost() throws Exception {
@@ -258,12 +279,14 @@ public class PostControllerTest {
         then(postService).should().updatePost(eq(postId), any(PostDTO.class));
     }
 
+    @WithUserDetails(value = "mhTest", userDetailsServiceBeanName = "userDetailService", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 게시글 삭제 - 정상 호출")
     @Test
     void givenpostIdToDelete_whenRequesting_thenDeletesPost() throws Exception {
         // Given
         Long postId = 1L;
-        willDoNothing().given(postService).deletePost(postId);
+        String userId = "mhTest";
+        willDoNothing().given(postService).deletePost(postId, userId);
 
         // When & Then
         mvc.perform(
@@ -274,7 +297,7 @@ public class PostControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/posts"))
                 .andExpect(redirectedUrl("/posts"));
-        then(postService).should().deletePost(postId);
+        then(postService).should().deletePost(postId, userId);
     }
 
 
