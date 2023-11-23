@@ -11,7 +11,7 @@
         <attr sel="#hashtag" th:text="*{hashtag}" />
         <attr sel="#post-content/pre" th:text="*{content}" />
 
-        <attr sel="#post-buttons" >
+        <attr sel="#post-buttons" th:if="${#authorization.expression('isAuthenticated()')} and *{userId} == ${#authentication.name}">
             <attr sel="#delete-post-form" th:action="'/posts/' + *{id} + '/delete'" th:method="post">
                 <attr sel="#update-post" th:href="'/posts/' + *{id} + '/form'" />
             </attr>
@@ -28,6 +28,7 @@
                     <attr sel="div/strong" th:text="${comment.nickname}" />
                     <attr sel="div/small/time" th:datetime="${comment.creDate}" th:text="${#temporals.format(comment.creDate, 'yyyy-MM-dd HH:mm:ss')}" />
                     <attr sel="div/p" th:text="${comment.content}" />
+                    <attr sel="button" th:if="${#authorization.expression('isAuthenticated()')} and ${comment.userId} == ${#authentication.name}" />
                 </attr>
             </attr>
         </attr>
