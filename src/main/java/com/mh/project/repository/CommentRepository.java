@@ -18,6 +18,9 @@ public interface CommentRepository extends
         QuerydslPredicateExecutor<Comment>,
         QuerydslBinderCustomizer<QComment> {
 
+    List<Comment> findByPostId(Long postId);
+    void deleteByIdAndUserAccount_UserId(Long commentId, String userId);
+
     @Override
     default void customize(QuerydslBindings bindings, QComment root) {
         bindings.excludeUnlistedProperties(true);
@@ -25,6 +28,4 @@ public interface CommentRepository extends
         bindings.bind(root.creDate).first(DateTimeExpression::eq);
         bindings.bind(root.creUser).first(StringExpression::containsIgnoreCase);
     }
-
-    List<Comment> findByPostId(Long postId);
 }

@@ -6,6 +6,7 @@ import com.mh.project.dto.UserAccountDTO;
 import com.mh.project.dto.request.PostRequest;
 import com.mh.project.dto.response.PostResponse;
 import com.mh.project.dto.response.PostWithCommentResponse;
+import com.mh.project.dto.security.BoardPrincipal;
 import com.mh.project.service.PaginationService;
 import com.mh.project.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -84,11 +86,11 @@ public class PostController {
     }
 
     @PostMapping("/form")
-    public String postingNewPost(PostRequest postRequest) {
-        // TODO: 인증 정보 넣어야 함.
-        postService.savePost(postRequest.toDTO(UserAccountDTO.of(
-                "mh", "abc123", "test@test.test", "MH", "memo", null, null, null, null
-        )));
+    public String postingNewPost(
+            PostRequest postRequest,
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal
+    ) {
+        postService.savePost(postRequest.toDTO(boardPrincipal.toDTO()));
 
         return "redirect:/posts";
     }
@@ -104,19 +106,22 @@ public class PostController {
     }
 
     @PostMapping ("/{postId}/form")
-    public String updatePost(@PathVariable Long postId, PostRequest postRequest) {
-        // TODO: 인증 정보를 넣어줘야 한다.
-        postService.updatePost(postId, postRequest.toDTO(UserAccountDTO.of(
-                "mh", "abc123", "test@test.test", "MH", "memo", null, null, null, null
-        )));
+    public String updatePost(
+            @PathVariable Long postId,
+            PostRequest postRequest,
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal
+    ) {
+        postService.updatePost(postId, postRequest.toDTO(boardPrincipal.toDTO()));
 
         return "redirect:/posts/" + postId;
     }
 
     @PostMapping ("/{postId}/delete")
-    public String deletePost(@PathVariable Long postId) {
-        // TODO: 인증 정보를 넣어줘야 한다.
-        postService.deletePost(postId);
+    public String deletePost(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal
+            ) {
+        postService.deletePost(postId, boardPrincipal.getUsername());
 
         return "redirect:/posts";
     }

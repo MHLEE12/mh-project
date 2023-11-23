@@ -65,16 +65,20 @@ public class PostService {
     public void updatePost(Long postId, PostDTO dto) {
         try {
             Post post = postRepository.getReferenceById(postId);
-            if (dto.title() != null) { post.setTitle(dto.title()); }
-            if (dto.content() != null) { post.setContent(dto.content()); }
-            post.setHashtag(dto.hashtag());
+            UserAccount userAccount = userAccountRepository.getReferenceById(dto.userAccountDTO().userId());
+
+            if (post.getUserAccount().equals(userAccount)) {
+                if (dto.title() != null) { post.setTitle(dto.title()); }
+                if (dto.content() != null) { post.setContent(dto.content()); }
+                post.setHashtag(dto.hashtag());
+            }
         } catch (EntityNotFoundException e) {
-            log.warn("게시글 수정에 실패했습니다. 게시글을 찾을 수 없습니다. - dto: {}", dto);
+            log.warn("게시글 수정에 실패했습니다. 게시글 수정에 필요한 정보를 찾을 수 없습니다. - {}", e.getLocalizedMessage());
         }
     }
 
-    public void deletePost(long postId) {
-        postRepository.deleteById(postId);
+    public void deletePost(Long postId, String userId) {
+        postRepository.deleteByIdAndUserAccount_UserId(postId, userId);
     }
 
     @Transactional(readOnly = true)

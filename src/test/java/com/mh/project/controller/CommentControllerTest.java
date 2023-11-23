@@ -5,6 +5,7 @@ import com.mh.project.dto.CommentDTO;
 import com.mh.project.dto.request.CommentRequest;
 import com.mh.project.service.CommentService;
 import com.mh.project.util.FormDataEncoder;
+import com.mh.project.util.TestSecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
@@ -25,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
 @DisplayName("Comment Controller")
-@Import({SecurityConfig.class, FormDataEncoder.class})
+@Import({TestSecurityConfig.class, FormDataEncoder.class})
 @WebMvcTest(CommentController.class)
 class CommentControllerTest {
 
@@ -40,6 +43,7 @@ class CommentControllerTest {
         this.formDataEncoder = formDataEncoder;
     }
 
+    @WithUserDetails(value = "mhTest", userDetailsServiceBeanName = "userDetailService", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 댓글 등록 - 정상 호출")
     @Test
     void givenArticleCommentInfo_whenRequesting_thenSavesNewArticleComment() throws Exception {
@@ -61,13 +65,15 @@ class CommentControllerTest {
         then(commentService).should().saveComment(any(CommentDTO.class));
     }
 
+    @WithUserDetails(value = "mhTest", userDetailsServiceBeanName = "userDetailService", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][GET] 댓글 삭제 - 정상 호출")
     @Test
     void givenArticleCommentIdToDelete_whenRequesting_thenDeletesArticleComment() throws Exception {
         // Given
         Long postId = 1L;
         Long commentId = 1L;
-        willDoNothing().given(commentService).deleteComment(commentId);
+        String userId = "mhTest";
+        willDoNothing().given(commentService).deleteComment(commentId, userId);
 
         // When & Then
         mvc.perform(
@@ -79,7 +85,7 @@ class CommentControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/posts/" + postId))
                 .andExpect(redirectedUrl("/posts/" + postId));
-        then(commentService).should().deleteComment(commentId);
+        then(commentService).should().deleteComment(commentId, userId);
     }
 
 }
